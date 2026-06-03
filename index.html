@@ -3,49 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Filas - Banheiro</title>
+    <title>Dashboard - Controle de Fluxo Escolar</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --success: #16a34a;
-            --danger: #dc2626;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 30px 20px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        h1 { font-size: 24px; font-weight: 700; }
+        p { color: var(--text-muted); font-size: 14px; }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
             margin-bottom: 30px;
         }
 
-        h1 {
-            color: var(--primary);
-            margin-bottom: 5px;
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-card h4 { color: var(--text-muted); font-size: 12px; text-transform: uppercase; margin-bottom: 5px;}
+        .stat-card div { font-size: 24px; font-weight: bold; color: var(--primary); }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
 
         .card {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 25px;
+            background: var(--bg-card);
             border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .form-group {
@@ -53,77 +97,81 @@
             gap: 10px;
         }
 
-        input[type="text"] {
+        input {
             flex: 1;
-            padding: 12px;
+            background: #0f172a;
             border: 1px solid var(--border);
+            color: white;
+            padding: 12px;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
         }
-
-        input[type="text"]:focus {
-            border-color: var(--primary);
-        }
+        input:focus { border-color: var(--primary); }
 
         button {
-            padding: 12px 24px;
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-            padding: 6px 12px;
+            transition: all 0.2s;
             font-size: 14px;
         }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-secondary { background: #475569; color: white; }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
             text-align: left;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            background-color: #f1f5f9;
-            color: #64748b;
-            font-weight: 600;
-        }
-
-        .badge {
-            background-color: #e0e7ff;
-            color: var(--primary);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-weight: bold;
             font-size: 14px;
         }
 
-        .empty-message {
-            color: #94a3b8;
+        th {
+            color: var(--text-muted);
+            padding: 10px;
+            border-bottom: 2px solid var(--border);
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .time-warning {
+            background-color: rgba(239, 68, 68, 0.15);
+            animation: pulse 2s infinite;
+        }
+        .time-text-warning {
+            color: var(--danger) !important;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        .empty {
+            color: var(--text-muted);
             text-align: center;
-            font-style: italic;
             padding: 20px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -131,189 +179,320 @@
 
 <div class="container">
     <header>
-        <h1>Controle de Saída para o Banheiro</h1>
-        <p>Gerenciamento em tempo real para professores</p>
+        <div>
+            <h1>WC Control Panel</h1>
+            <p>Gestão Inteligente de Fluxo de Alunos</p>
+        </div>
+        <div class="form-group">
+            <button class="btn-secondary" onclick="exportarCSV()">📥 Exportar Dados</button>
+            <button class="btn-danger" onclick="resetarDia()">🔄 Resetar Dia</button>
+        </div>
     </header>
 
-    <div class="card">
-        <h3>Registrar Saída de Aluno</h3>
-        <div class="form-group">
-            <input type="text" id="studentName" placeholder="Digite o nome completo do aluno..." autocomplete="off">
-            <button class="btn-primary" onclick="registrarSaida()">Registrar Saída</button>
+    <div class="stats-container">
+        <div class="stat-card">
+            <h4>No Banheiro</h4>
+            <div id="stat-ocupado">0 / 1</div>
+        </div>
+        <div class="stat-card">
+            <h4>Na Fila de Espera</h4>
+            <div id="stat-fila" style="color: var(--warning)">0</div>
+        </div>
+        <div class="stat-card">
+            <h4>Total de Saídas</h4>
+            <div id="stat-total" style="color: var(--success)">0</div>
         </div>
     </div>
 
-    <div class="card">
-        <h3>Alunos no Banheiro Agora</h3>
-        <div id="activeListContainer">
-            <table id="activeTable">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Hora de Saída</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="activeBody">
-                    </tbody>
-            </table>
-            <div id="activeEmpty" class="empty-message">Nenhum aluno no banheiro no momento.</div>
-        </div>
-    </div>
+    <div class="dashboard-grid">
+        
+        <div>
+            <div class="card">
+                <div class="card-title">Inserir Aluno no Fluxo</div>
+                <div class="form-group">
+                    <input type="text" id="alunoNome" placeholder="Nome do aluno..." autocomplete="off">
+                    <button class="btn-primary" onclick="adicionarAluno()">Lançar</button>
+                </div>
+            </div>
 
-    <div class="card">
-        <h3>Histórico de Utilização (Hoje)</h3>
-        <table id="historyTable">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Saída</th>
-                    <th>Retorno</th>
-                    <th>Tempo Fora</th>
-                    <th>Idas Hoje</th>
-                </tr>
-            </thead>
-            <tbody id="historyBody">
-                </tbody>
-        </table>
-        <div id="historyEmpty" class="empty-message">Nenhum registro no histórico hoje.</div>
+            <div class="card">
+                <div class="card-title">Utilizando o Banheiro <span class="badge badge-info" id="limiteBadge">Limite: 1</span></div>
+                <table id="tableAtivos">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Saída</th>
+                            <th>Tempo Fora</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ativosBody"></tbody>
+                </table>
+                <div id="ativosEmpty" class="empty">Banheiro livre.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Fila de Espera <span class="badge badge-warning" id="filaBadge">Aguardando</span></div>
+                <table id="tableFila">
+                    <thead>
+                        <tr>
+                            <th>Posição</th>
+                            <th>Nome</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="filaBody"></tbody>
+                </table>
+                <div id="filaEmpty" class="empty">Ninguém aguardando na fila.</div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="height: calc(100% - 25px); overflow-y: auto;">
+                <div class="card-title">Histórico de Atividade Operacional</div>
+                <table id="tableHistorico">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Saída</th>
+                            <th>Retorno</th>
+                            <th>Duração</th>
+                            <th>Idas Hoje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historicoBody"></tbody>
+                </table>
+                <div id="historicoEmpty" class="empty">Nenhum registro gerado hoje.</div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script>
-    // Estruturas de dados em memória
-    let noBanheiro = [];
-    let historico = [];
-    let contagemIdas = {}; // Armazena quantas vezes cada nome já foi
+    const LIMITE_BANHEIRO = 1; 
+    const TEMPO_MAXIMO_MINUTOS = 5; 
 
-    // Formata a hora para HH:MM:SS
-    function formatarHora(date) {
-        return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    let noBanheiro = JSON.parse(localStorage.getItem('wc_noBanheiro')) || [];
+    let filaEspera = JSON.parse(localStorage.getItem('wc_filaEspera')) || [];
+    let historico = JSON.parse(localStorage.getItem('wc_historico')) || [];
+    let contagemIdas = JSON.parse(localStorage.getItem('wc_contagemIdas')) || {};
+
+    function salvarDados() {
+        localStorage.setItem('wc_noBanheiro', JSON.stringify(noBanheiro));
+        localStorage.setItem('wc_filaEspera', JSON.stringify(filaEspera));
+        localStorage.setItem('wc_historico', JSON.stringify(historico));
+        localStorage.setItem('wc_contagemIdas', JSON.stringify(contagemIdas));
     }
 
-    // Calcula a diferença de tempo de forma amigável
-    function calcularDiferenca(saida, chegada) {
-        const diffMs = chegada - saida;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffSecs = Math.floor((diffMs % 60000) / 1000);
-        
-        if (diffMins === 0) {
-            return `${diffSecs}s`;
-        }
-        return `${diffMins}m ${diffSecs}s`;
+    function formatarHora(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
 
-    // Registrar quando o aluno sai da sala
-    function registrarSaida() {
-        const input = document.getElementById('studentName');
+    function adicionarAluno() {
+        const input = document.getElementById('alunoNome');
         const nome = input.value.trim();
 
-        if (!nome) {
-            alert('Por favor, digite o nome do aluno antes de registrar.');
-            return;
+        if (!nome) return alert('Insira o nome do aluno.');
+
+        if (noBanheiro.some(a => a.nome.toLowerCase() === nome.toLowerCase()) || 
+            filaEspera.some(a => a.nome.toLowerCase() === nome.toLowerCase())) {
+            return alert('Este aluno já está na fila ou dentro do banheiro.');
         }
 
-        // Verifica se o aluno já está no banheiro para evitar duplicados
-        const jaEstaNoBanheiro = noBanheiro.some(aluno => aluno.nome.toLowerCase() === nome.toLowerCase());
-        if (jaEstaNoBanheiro) {
-            alert('Este aluno já consta como "No Banheiro".');
-            return;
-        }
-
-        const agora = new Date();
-        
-        // Atualiza a frequência do dia
         contagemIdas[nome] = (contagemIdas[nome] || 0) + 1;
 
-        const novoAluno = {
-            id: Date.now(),
-            nome: nome,
-            horaSaida: agora,
-            frequencia: contagemIdas[nome]
-        };
+        if (noBanheiro.length < LIMITE_BANHEIRO) {
+            noBanheiro.push({
+                id: Date.now(),
+                nome: nome,
+                horaSaida: new Date(),
+                vezes: contagemIdas[nome]
+            });
+        } else {
+            filaEspera.push({
+                id: Date.now(),
+                nome: nome,
+                vezes: contagemIdas[nome]
+            });
+        }
 
-        noBanheiro.push(novoAluno);
-        input.value = ''; // Limpa o input
-        atualizarInterface();
+        input.value = '';
+        salvarDados();
+        render();
     }
 
-    // Registrar quando o aluno retorna à sala
-    function registrarRetorno(id) {
+    function finalizarUso(id) {
+        const index = noBanheiro.findIndex(a => a.id === id);
+        if (index === -1) return;
+
+        const aluno = noBanheiro[index];
         const agora = new Date();
-        const index = noBanheiro.findIndex(aluno => aluno.id === id);
+        const diffMs = agora - new Date(aluno.horaSaida);
         
+        const mins = Math.floor(diffMs / 60000);
+        const segs = Math.floor((diffMs % 60000) / 1000);
+        const permanenciaStr = `${mins}m ${segs}s`;
+
+        historico.unshift({
+            nome: aluno.nome,
+            saida: formatarHora(aluno.horaSaida),
+            chegada: formatarHora(agora),
+            duracao: permanenciaStr,
+            vezes: aluno.vezes
+        });
+
+        noBanheiro.splice(index, 1);
+        // A ENTRADA AUTOMÁTICA DA FILA FOI REMOVIDA DAQUI
+
+        salvarDados();
+        render();
+    }
+
+    // NOVA FUNÇÃO: Libera manualmente o aluno da fila para o banheiro
+    function chamarDaFila(id) {
+        if (noBanheiro.length >= LIMITE_BANHEIRO) {
+            return alert('O banheiro já está ocupado! Aguarde a saída do aluno atual antes de chamar o próximo.');
+        }
+
+        const index = filaEspera.findIndex(a => a.id === id);
         if (index !== -1) {
-            const aluno = noBanheiro[index];
+            const aluno = filaEspera[index];
             
-            const registroHistorico = {
+            // Remove da fila de espera
+            filaEspera.splice(index, 1);
+            
+            // Move para o banheiro (atualizando o horário real de saída de sala)
+            noBanheiro.push({
+                id: Date.now(),
                 nome: aluno.nome,
-                saida: formatarHora(aluno.horaSaida),
-                chegada: formatarHora(agora),
-                permanencia: calcularDiferenca(aluno.horaSaida, agora),
-                frequencia: aluno.frequencia
-            };
+                horaSaida: new Date(),
+                vezes: aluno.vezes
+            });
 
-            historico.unshift(registroHistorico); // Adiciona no início do histórico
-            noBanheiro.splice(index, 1); // Remove da lista ativa
-            atualizarInterface();
+            salvarDados();
+            render();
         }
     }
 
-    // Renderiza as tabelas na tela
-    function atualizarInterface() {
-        const activeBody = document.getElementById('activeBody');
-        const historyBody = document.getElementById('historyBody');
-        const activeEmpty = document.getElementById('activeEmpty');
-        const historyEmpty = document.getElementById('historyEmpty');
-        const activeTable = document.getElementById('activeTable');
+    function removerDaFila(id) {
+        filaEspera = filaEspera.filter(a => a.id !== id);
+        salvarDados();
+        render();
+    }
 
-        // Atualiza Lista Ativa
-        activeBody.innerHTML = '';
-        if (noBanheiro.length === 0) {
-            activeEmpty.style.display = 'block';
-            activeTable.style.display = 'none';
-        } else {
-            activeEmpty.style.display = 'none';
-            activeTable.style.display = 'table';
-            
-            noBanheiro.forEach(aluno => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${aluno.nome}</strong></td>
-                    <td>${formatarHora(aluno.horaSaida)}</td>
-                    <td><button class="btn-success" onclick="registrarRetorno(${aluno.id})">Retornou</button></td>
-                `;
-                activeBody.appendChild(tr);
-            });
-        }
+    function atualizarCronometros() {
+        if (noBanheiro.length === 0) return;
 
-        // Atualiza Histórico
-        historyBody.innerHTML = '';
-        if (historico.length === 0) {
-            historyEmpty.style.display = 'block';
-        } else {
-            historyEmpty.style.display = 'none';
-            
-            historico.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.nome}</td>
-                    <td>${item.saida}</td>
-                    <td>${item.chegada}</td>
-                    <td><span class="badge">${item.permanencia}</span></td>
-                    <td>${item.frequencia}x</td>
-                `;
-                historyBody.appendChild(tr);
-            });
+        noBanheiro.forEach(aluno => {
+            const elementoTempo = document.getElementById(`tempo-${aluno.id}`);
+            const elementoLinha = document.getElementById(`linha-${aluno.id}`);
+            if (!elementoTempo) return;
+
+            const diffMs = new Date() - new Date(aluno.horaSaida);
+            const mins = Math.floor(diffMs / 60000);
+            const segs = Math.floor((diffMs % 60000) / 1000);
+
+            elementoTempo.innerText = `${mins}m ${segs}s`;
+
+            if (mins >= TEMPO_MAXIMO_MINUTOS) {
+                elementoLinha.classList.add('time-warning');
+                elementoTempo.classList.add('time-text-warning');
+            }
+        });
+    }
+
+    function render() {
+        const ativosBody = document.getElementById('ativosBody');
+        const filaBody = document.getElementById('filaBody');
+        const historicoBody = document.getElementById('historicoBody');
+
+        document.getElementById('stat-ocupado').innerText = `${noBanheiro.length} / ${LIMITE_BANHEIRO}`;
+        document.getElementById('stat-fila').innerText = filaEspera.length;
+        document.getElementById('stat-total').innerText = historico.length + noBanheiro.length + filaEspera.length;
+
+        ativosBody.innerHTML = '';
+        document.getElementById('ativosEmpty').style.display = noBanheiro.length === 0 ? 'block' : 'none';
+        document.getElementById('tableAtivos').style.display = noBanheiro.length === 0 ? 'none' : 'table';
+        
+        noBanheiro.forEach(aluno => {
+            const tr = document.createElement('tr');
+            tr.id = `linha-${aluno.id}`;
+            tr.innerHTML = `
+                <td><strong>${aluno.nome}</strong> <small style="color:var(--text-muted)">(${aluno.vezes}ª ida)</small></td>
+                <td>${formatarHora(aluno.horaSaida)}</td>
+                <td id="tempo-${aluno.id}">0m 0s</td>
+                <td><button class="btn-success" onclick="finalizarUso(${aluno.id})">Retornou</button></td>
+            `;
+            ativosBody.appendChild(tr);
+        });
+
+        filaBody.innerHTML = '';
+        document.getElementById('filaEmpty').style.display = filaEspera.length === 0 ? 'block' : 'none';
+        document.getElementById('tableFila').style.display = filaEspera.length === 0 ? 'none' : 'table';
+
+        filaEspera.forEach((aluno, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span class="badge badge-warning">${index + 1}º</span></td>
+                <td>${aluno.nome}</td>
+                <td>
+                    <button class="btn-success" style="padding:4px 8px; font-size:12px; margin-right:5px;" onclick="chamarDaFila(${aluno.id})">Chamar</button>
+                    <button class="btn-danger" style="padding:4px 8px; font-size:12px;" onclick="reverDaFila(${aluno.id})">Remover</button>
+                </td>
+            `;
+            filaBody.appendChild(tr);
+        });
+
+        historicoBody.innerHTML = '';
+        document.getElementById('historicoEmpty').style.display = historico.length === 0 ? 'block' : 'none';
+        document.getElementById('tableHistorico').style.display = historico.length === 0 ? 'none' : 'table';
+
+        historico.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.nome}</td>
+                <td>${item.saida}</td>
+                <td>${item.chegada}</td>
+                <td><span class="badge badge-info">${item.duracao}</span></td>
+                <td>${item.vezes}x</td>
+            `;
+            historicoBody.appendChild(tr);
+        });
+    }
+
+    function exportarCSV() {
+        if (historico.length === 0) return alert('Não há histórico para exportar.');
+        
+        let csv = 'Nome;Horario Saida;Horario Retorno;Tempo de Permanencia;Frequencia no Dia\n';
+        historico.forEach(h => {
+            csv += `${h.nome};${h.saida};${h.chegada};${h.duracao};${h.vezes}x\n`;
+        });
+
+        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `historico_banheiro_${new Date().toLocaleDateString().replace(/\//g, '-')}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function resetarDia() {
+        if (confirm('Tem certeza que deseja apagar o histórico e as filas? Essa ação não pode ser desfeita.')) {
+            localStorage.clear();
+            noBanheiro = []; filaEspera = []; historico = []; contagemIdas = {};
+            render();
         }
     }
 
-    // Permite apertar "Enter" no teclado para registrar
-    document.getElementById('studentName').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            registrarSaida();
-        }
+    document.getElementById('alunoNome').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') adicionarAluno();
     });
+
+    render();
+    setInterval(atualizarCronometros, 1000);
 </script>
 
 </body>
