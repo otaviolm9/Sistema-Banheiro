@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Filas - Banheiro</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .badge {
+            background-color: #e0e7ff;
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .empty-message {
+            color: #94a3b8;
+            text-align: center;
+            font-style: italic;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Controle de Saída para o Banheiro</h1>
+        <p>Gerenciamento em tempo real para professores</p>
+    </header>
+
+    <div class="card">
+        <h3>Registrar Saída de Aluno</h3>
+        <div class="form-group">
+            <input type="text" id="studentName" placeholder="Digite o nome completo do aluno..." autocomplete="off">
+            <button class="btn-primary" onclick="registrarSaida()">Registrar Saída</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Alunos no Banheiro Agora</h3>
+        <div id="activeListContainer">
+            <table id="activeTable">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Hora de Saída</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="activeBody">
+                    </tbody>
+            </table>
+            <div id="activeEmpty" class="empty-message">Nenhum aluno no banheiro no momento.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Histórico de Utilização (Hoje)</h3>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Saída</th>
+                    <th>Retorno</th>
+                    <th>Tempo Fora</th>
+                    <th>Idas Hoje</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+                </tbody>
+        </table>
+        <div id="historyEmpty" class="empty-message">Nenhum registro no histórico hoje.</div>
+    </div>
+</div>
+
+<script>
+    // Estruturas de dados em memória
+    let noBanheiro = [];
+    let historico = [];
+    let contagemIdas = {}; // Armazena quantas vezes cada nome já foi
+
+    // Formata a hora para HH:MM:SS
+    function formatarHora(date) {
+        return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    // Calcula a diferença de tempo de forma amigável
+    function calcularDiferenca(saida, chegada) {
+        const diffMs = chegada - saida;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffSecs = Math.floor((diffMs % 60000) / 1000);
+        
+        if (diffMins === 0) {
+            return `${diffSecs}s`;
+        }
+        return `${diffMins}m ${diffSecs}s`;
+    }
+
+    // Registrar quando o aluno sai da sala
+    function registrarSaida() {
+        const input = document.getElementById('studentName');
+        const nome = input.value.trim();
+
+        if (!nome) {
+            alert('Por favor, digite o nome do aluno antes de registrar.');
+            return;
+        }
+
+        // Verifica se o aluno já está no banheiro para evitar duplicados
+        const jaEstaNoBanheiro = noBanheiro.some(aluno => aluno.nome.toLowerCase() === nome.toLowerCase());
+        if (jaEstaNoBanheiro) {
+            alert('Este aluno já consta como "No Banheiro".');
+            return;
+        }
+
+        const agora = new Date();
+        
+        // Atualiza a frequência do dia
+        contagemIdas[nome] = (contagemIdas[nome] || 0) + 1;
+
+        const novoAluno = {
+            id: Date.now(),
+            nome: nome,
+            horaSaida: agora,
+            frequencia: contagemIdas[nome]
+        };
+
+        noBanheiro.push(novoAluno);
+        input.value = ''; // Limpa o input
+        atualizarInterface();
+    }
+
+    // Registrar quando o aluno retorna à sala
+    function registrarRetorno(id) {
+        const agora = new Date();
+        const index = noBanheiro.findIndex(aluno => aluno.id === id);
+        
+        if (index !== -1) {
+            const aluno = noBanheiro[index];
+            
+            const registroHistorico = {
+                nome: aluno.nome,
+                saida: formatarHora(aluno.horaSaida),
+                chegada: formatarHora(agora),
+                permanencia: calcularDiferenca(aluno.horaSaida, agora),
+                frequencia: aluno.frequencia
+            };
+
+            historico.unshift(registroHistorico); // Adiciona no início do histórico
+            noBanheiro.splice(index, 1); // Remove da lista ativa
+            atualizarInterface();
+        }
+    }
+
+    // Renderiza as tabelas na tela
+    function atualizarInterface() {
+        const activeBody = document.getElementById('activeBody');
+        const historyBody = document.getElementById('historyBody');
+        const activeEmpty = document.getElementById('activeEmpty');
+        const historyEmpty = document.getElementById('historyEmpty');
+        const activeTable = document.getElementById('activeTable');
+
+        // Atualiza Lista Ativa
+        activeBody.innerHTML = '';
+        if (noBanheiro.length === 0) {
+            activeEmpty.style.display = 'block';
+            activeTable.style.display = 'none';
+        } else {
+            activeEmpty.style.display = 'none';
+            activeTable.style.display = 'table';
+            
+            noBanheiro.forEach(aluno => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${aluno.nome}</strong></td>
+                    <td>${formatarHora(aluno.horaSaida)}</td>
+                    <td><button class="btn-success" onclick="registrarRetorno(${aluno.id})">Retornou</button></td>
+                `;
+                activeBody.appendChild(tr);
+            });
+        }
+
+        // Atualiza Histórico
+        historyBody.innerHTML = '';
+        if (historico.length === 0) {
+            historyEmpty.style.display = 'block';
+        } else {
+            historyEmpty.style.display = 'none';
+            
+            historico.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.nome}</td>
+                    <td>${item.saida}</td>
+                    <td>${item.chegada}</td>
+                    <td><span class="badge">${item.permanencia}</span></td>
+                    <td>${item.frequencia}x</td>
+                `;
+                historyBody.appendChild(tr);
+            });
+        }
+    }
+
+    // Permite apertar "Enter" no teclado para registrar
+    document.getElementById('studentName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            registrarSaida();
+        }
+    });
+</script>
+
+</body>
+</html>
