@@ -4,4 +4,4 @@ Software em navegador para gestão de filas do banheiro para professores usarem 
 - Hora da saida
 - Hora da chegada
 - Tempo de permanencia
-- Quantas vezes foi no aula/dia
+- Quantas vezes foi na aula/dia
