@@ -123,6 +123,7 @@
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-secondary { background: #475569; color: white; }
+        .btn-warning { background: var(--warning); color: white; }
 
         table {
             width: 100%;
@@ -192,7 +193,7 @@
     <div class="stats-container">
         <div class="stat-card">
             <h4>No Banheiro</h4>
-            <div id="stat-ocupado">0 / 1</div>
+            <div id="stat-ocupado">0 / 3</div>
         </div>
         <div class="stat-card">
             <h4>Na Fila de Espera</h4>
@@ -211,12 +212,13 @@
                 <div class="card-title">Inserir Aluno no Fluxo</div>
                 <div class="form-group">
                     <input type="text" id="alunoNome" placeholder="Nome do aluno..." autocomplete="off">
-                    <button class="btn-primary" onclick="adicionarAluno()">Lançar</button>
+                    <button class="btn-primary" onclick="adicionarAluno(false)">Lançar</button>
+                    <button class="btn-warning" onclick="adicionarAluno(true)">Apenas Fila</button>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title">Utilizando o Banheiro <span class="badge badge-info" id="limiteBadge">Limite: 1</span></div>
+                <div class="card-title">Utilizando o Banheiro <span class="badge badge-info" id="limiteBadge">Limite: 3</span></div>
                 <table id="tableAtivos">
                     <thead>
                         <tr>
@@ -270,7 +272,7 @@
 </div>
 
 <script>
-    const LIMITE_BANHEIRO = 1; 
+    const LIMITE_BANHEIRO = 3; 
     const TEMPO_MAXIMO_MINUTOS = 5; 
 
     let noBanheiro = JSON.parse(localStorage.getItem('wc_noBanheiro')) || [];
@@ -290,7 +292,7 @@
         return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
 
-    function adicionarAluno() {
+    function adicionarAluno(forcarFila = false) {
         const input = document.getElementById('alunoNome');
         const nome = input.value.trim();
 
@@ -303,7 +305,8 @@
 
         contagemIdas[nome] = (contagemIdas[nome] || 0) + 1;
 
-        if (noBanheiro.length < LIMITE_BANHEIRO) {
+        // Se o botão de forçar fila foi clicado, vai direto pra fila indepedente de vagas
+        if (!forcarFila && noBanheiro.length < LIMITE_BANHEIRO) {
             noBanheiro.push({
                 id: Date.now(),
                 nome: nome,
@@ -344,26 +347,22 @@
         });
 
         noBanheiro.splice(index, 1);
-        // A ENTRADA AUTOMÁTICA DA FILA FOI REMOVIDA DAQUI
 
         salvarDados();
         render();
     }
 
-    // NOVA FUNÇÃO: Libera manualmente o aluno da fila para o banheiro
     function chamarDaFila(id) {
         if (noBanheiro.length >= LIMITE_BANHEIRO) {
-            return alert('O banheiro já está ocupado! Aguarde a saída do aluno atual antes de chamar o próximo.');
+            return alert('O banheiro já está lotado! Aguarde a saída de algum aluno antes de chamar o próximo.');
         }
 
         const index = filaEspera.findIndex(a => a.id === id);
         if (index !== -1) {
             const aluno = filaEspera[index];
             
-            // Remove da fila de espera
             filaEspera.splice(index, 1);
             
-            // Move para o banheiro (atualizando o horário real de saída de sala)
             noBanheiro.push({
                 id: Date.now(),
                 nome: aluno.nome,
@@ -439,7 +438,7 @@
                 <td>${aluno.nome}</td>
                 <td>
                     <button class="btn-success" style="padding:4px 8px; font-size:12px; margin-right:5px;" onclick="chamarDaFila(${aluno.id})">Chamar</button>
-                    <button class="btn-danger" style="padding:4px 8px; font-size:12px;" onclick="reverDaFila(${aluno.id})">Remover</button>
+                    <button class="btn-danger" style="padding:4px 8px; font-size:12px;" onclick="removerDaFila(${aluno.id})">Remover</button>
                 </td>
             `;
             filaBody.appendChild(tr);
@@ -488,7 +487,7 @@
     }
 
     document.getElementById('alunoNome').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') adicionarAluno();
+        if (e.key === 'Enter') adicionarAluno(false);
     });
 
     render();
