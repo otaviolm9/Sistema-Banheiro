@@ -17,6 +17,7 @@
         <div class="form-group">
             <button class="btn-secondary" onclick="exportarCSV()">📥 Exportar Dados</button>
             <button class="btn-danger" onclick="resetarDia()">🔄 Resetar Dia</button>
+            <button class="btn-primary" onclick="paginMonitoramento()">📊 Monitoramento</button>
         </div>
     </header>
 
@@ -111,6 +112,11 @@
     let filaEspera = JSON.parse(localStorage.getItem('wc_filaEspera')) || [];
     let historico = JSON.parse(localStorage.getItem('wc_historico')) || [];
     let contagemIdas = JSON.parse(localStorage.getItem('wc_contagemIdas')) || {};
+
+
+    function paginMonitoramento() {
+        window.location.href = "dash.html"
+    }
 
     function salvarDados() {
         localStorage.setItem('wc_noBanheiro', JSON.stringify(noBanheiro));
